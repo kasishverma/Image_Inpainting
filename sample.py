@@ -4,7 +4,6 @@ import numpy as np
 from PIL import Image
 import os
 from streamlit_option_menu import option_menu
-#import home, contact, projects, about, mailus
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -37,20 +36,15 @@ def load_image(image_path):
         return Image.open(image_path)
 coli1,coli2 = st.columns([1,4])
 with coli1:
-    imge1 = load_image(r"C:\Users\vermaks\Downloads\logo.png")
+    imge1 = load_image("logo.png")
     st.image(imge1)
 st.markdown("""
                 <style>
                         .custom-text {
                                         padding:0px; /* Adjust the padding as needed */
-                                        margin-bottom: -30px}
+                                        margin-bottom: -40px}
                                         </style>
             """, unsafe_allow_html=True)
-
-
-st.markdown(
-    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>Sample Dashboard</span></h2></p>",
-    unsafe_allow_html=True)
 
 st.markdown("""
         <style>
@@ -63,11 +57,6 @@ st.markdown("""
         </style>
     """, unsafe_allow_html=True)
 
-    # Create a custom divider
-st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-
-
-
 with st.container():
     with st.sidebar:
         selected = option_menu(
@@ -77,7 +66,7 @@ with st.container():
             # menu_icon = <i class ="graph-up-arrow" style="font-size: 2rem; color: cornflowerblue;" > < / i >
             #menu_icon="graph-up-arrow",
             #orientation="horizontal",
-            default_index=3,
+            default_index=0,
             styles={
                 "container": {"padding": "0!important", "background-color": "#f8f5fa"},
                 # "icon": {"color": "orange", "font-size": "15px"},
@@ -94,133 +83,221 @@ st.sidebar.divider()
 
 if selected=="home":
     st.markdown(
-        "<p class='custom-text'><h2 style=text-align:center;>Dashboard</h2></p>",
-        unsafe_allow_html=True)
+    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>Sample Dashboard</span></h2></p>",
+    unsafe_allow_html=True)
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-
-
-
-    st.divider()
     st.write("welcome to streamlit")
+    image_nat = load_image("n.png")
+    st.image(image_nat, use_column_width=True)
 
 
-    st.sidebar.header("Filter: ")
-#with col1:
-    ##date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+elif selected=="projects":
+    st.markdown(
+    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>Projects</span></h2></p>",
+    unsafe_allow_html=True)
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-#with col2:
-    #date2 = pd.to_datetime(st.date_input("End Date", endDate))
-    slider_value=st.sidebar.slider("select a value",0,100,50)
-    checkbox_option=st.sidebar.checkbox("show data")
-    data=pd.DataFrame({'x':np.random.rand(100),'y':np.random.rand(100)})
-    if checkbox_option:
-        st.subheader("random data")
-        st.write(data)
-
-    tab1, tab2 = st.tabs(["TAB1", "TAB2"])
-    with tab1:
-        col1, col2 = st.columns((2))
-        with col1:
-            #st.markdown("\n")
-            #st.markdown("\n")
-            st.markdown("<h5 style='text-align: center;'>H1</h5>",
-                        unsafe_allow_html=True)
-            images1_1 = load_image(
-                r"C:\Users\vermaks\Downloads\1.png")
-            images1_2 = load_image(
-                r"C:\Users\vermaks\Downloads\6.png")
-            st.image(images1_1, caption=" image3", use_column_width=True)
-            st.divider()
-            st.image(images1_2, caption=" image4", use_column_width=True)
-        with col2:
-            st.markdown("<h5 style='text-align: center;'>H2</h5>",
-                        unsafe_allow_html=True)
-            images2_1 = load_image(
-                r"C:\Users\vermaks\Downloads\3.png")
-            images2_2 = load_image(
-                r"C:\Users\vermaks\Downloads\4.png")
-            st.image(images2_1, caption=" image1", use_column_width=True)
-            st.divider()
-            st.image(images2_2, caption=" image2", use_column_width=True)
-    st.divider()
-    selected_option = st.selectbox("",['line graph', 'bar graph',
-                                                'histogram'])
-    if selected_option == "line graph":
-        image1_path = load_image(
-                    r"C:\Users\vermaks\Downloads\8.png")
-
-
-    elif selected_option == "bar graph":
-        image1_path = load_image(
-                    r"C:\Users\vermaks\Downloads\9.png")
-        
-    elif selected_option == "histogram":
-        image1_path = load_image(
-                    r"C:\Users\vermaks\Downloads\0.png")
-    st.image(image1_path, use_column_width=True)
-
-
-if selected=="projects":
-    with st.sidebar:
-    #st.sidebar.header("")
-        selected=option_menu(
-            menu_title=None,
-            options=["Analysis 1","Analysis 2","Analysis 3"], 
-        #icons=["house","book","envelope","phone"],
-            #default_index=0,
-            #orientation="vertical" ,
-        #styles={
-                    #"container": {"padding": "0!important", "background-color": "#f8f5fa"},
+    with st.container():
+        with st.sidebar:
+            subselect = option_menu(
+                menu_title=None,
+                options=["Analysis 1","Analysis 2","Analysis 3"],
+                icons=["graph-up-arrow","graph-up-arrow","graph-up-arrow"],
+                # menu_icon = <i class ="graph-up-arrow" style="font-size: 2rem; color: cornflowerblue;" > < / i >
+                #menu_icon="graph-up-arrow",
+                #orientation="horizontal",
+                default_index=0,
+                styles={
+                    "container": {"padding": "0!important", "background-color": "#f8f5fa"},
                     # "icon": {"color": "orange", "font-size": "15px"},
-                    #"nav-link": {"font-size": "18px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
-                    #"menu-icon": {"color": "purple"},
-                    #"nav-link-selected": {"color": "black", "font-size": "12px", "font-weight": "bold",
-                    #                    "background-color": "#eee"},
-                    #"icon": {"color": "purple"},
-                    #"menu-title": {"font-size": "18px", "font-weight": "bold"}
-                #}
-    )
+                    "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+                    "menu-icon": {"color": "purple"},
+                    "nav-link-selected": {"color": "black", "font-size": "12px", "font-weight": "bold",
+                                        "background-color": "#eee"},
+                    "icon": {"color": "purple"},
+                    #"menu-title": {"font-size": "15px", "font-weight": "bold"}
+                }
+            )
+    if subselect=="Analysis 1":
+        st.markdown("""
+                        <style>
+                                .custom-1 {
+                                                padding:0px; /* Adjust the padding as needed */
+                                                 margin-bottom: -40px}
+                                               </style>
+                    """, unsafe_allow_html=True)
 
-    if selected=="Analysis 1":
-        st.write("Analysis1 report")
-    if selected=="Analysis 2":
+
+        st.markdown("<p class='custom-1'><div style='text-align:center; font-size:24px;'><b>Analysis 1 </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+
+        st.markdown('<style>div.block-container{padding-top:0rem;}</style>', unsafe_allow_html=True)
+        st.sidebar.header("Filter: ")
+        st.sidebar.subheader("select date range")
+        st.sidebar.date_input("Start Date")
+        st.sidebar.date_input("End Date")
+
+
+        slider_value=st.sidebar.slider("select a value",0,100,50)
+        checkbox_option=st.sidebar.checkbox("show data")
+        data=pd.DataFrame({'x':np.random.rand(100),'y':np.random.rand(100)})
+        if checkbox_option:
+            st.subheader("random data")
+            st.write(data)
+        
+        selected_option = st.selectbox("",['line graph', 'bar graph',
+                                                    'histogram'])
+        if selected_option == "line graph":
+            image1_path = load_image("8.png")
+
+
+        elif selected_option == "bar graph":
+            image1_path = load_image("9.png")
+            
+        elif selected_option == "histogram":
+            image1_path = load_image("0.png")
+        st.image(image1_path, use_column_width=True)
+
+        
+                
+        #st.divider()
+        tab1, tab2 = st.tabs(["TAB1", "TAB2"])
+        with tab1:
+            col1, col2 = st.columns((2))
+            with col1:
+                #st.markdown("\n")
+                #st.markdown("\n")
+                st.markdown("<h5 style='text-align: center;'>H1</h5>",
+                            unsafe_allow_html=True)
+                images1_1 = load_image("1.png")
+                images1_2 = load_image("6.png")
+                st.image(images1_1, caption=" image3", use_column_width=True)
+                st.divider()
+                st.image(images1_2, caption=" image4", use_column_width=True)
+            with col2:
+                st.markdown("<h5 style='text-align: center;'>H2</h5>",
+                            unsafe_allow_html=True)
+                images2_1 = load_image("3.png")
+                images2_2 = load_image("4.png")
+                st.image(images2_1, caption=" image1", use_column_width=True)
+                st.divider()
+                st.image(images2_2, caption=" image2", use_column_width=True)
+        with tab2:
+                images1_1 = load_image("1.png")
+                st.image(images1_1, caption=" image3", use_column_width=True)
+
+    if subselect=="Analysis 2":
+        st.markdown("""
+                        <style>
+                                .custom-1 {
+                                                padding:0px; /* Adjust the padding as needed */
+                                                 margin-bottom: -40px}
+                                               </style>
+                    """, unsafe_allow_html=True)
+
+
+        st.markdown("<p class='custom-1'><div style='text-align:center; font-size:24px;'><b>Analysis 2 </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+
+        st.markdown('<style>div.block-container{padding-top:0rem;}</style>', unsafe_allow_html=True)
+        st.sidebar.header("Filter: ")
+        st.sidebar.subheader("select date range")
+        st.sidebar.date_input("Start Date")
+        st.sidebar.date_input("End Date")
+
+
+        slider_value=st.sidebar.slider("select a value",0,100,50)
+        checkbox_option=st.sidebar.checkbox("show data")
+        data=pd.DataFrame({'x':np.random.rand(100),'y':np.random.rand(100)})
+        if checkbox_option:
+            st.subheader("random data")
+            st.write(data)
         st.write("Analysis2 report")
-    if selected=="Analysis 3":
+    if subselect=="Analysis 3":
+        st.markdown("""
+                        <style>
+                                .custom-1 {
+                                                padding:0px; /* Adjust the padding as needed */
+                                                 margin-bottom: -40px}
+                                               </style>
+                    """, unsafe_allow_html=True)
+
+
+        st.markdown("<p class='custom-1'><div style='text-align:center; font-size:24px;'><b>Analysis 3 </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+
+        st.markdown('<style>div.block-container{padding-top:0rem;}</style>', unsafe_allow_html=True)
+        st.sidebar.header("Filter: ")
+        st.sidebar.subheader("select date range")
+        st.sidebar.date_input("Start Date")
+        st.sidebar.date_input("End Date")
+
+
+        slider_value=st.sidebar.slider("select a value",0,100,50)
+        checkbox_option=st.sidebar.checkbox("show data")
+        data=pd.DataFrame({'x':np.random.rand(100),'y':np.random.rand(100)})
+        if checkbox_option:
+            st.subheader("random data")
+            st.write(data)
         st.write("Analysis3 report")
 
-if selected=="contact us":
     
-    add_selectbox = st.sidebar.selectbox(
-    "How would you like to be contacted?",
-    ("Email", "Contact number", "LinkedIn")
-    )
-    if add_selectbox=="Email":
-        st.sidebar.markdown('<a href="mailto:hello@streamlit.io">Contact us !</a>', unsafe_allow_html=True)
-        st.sidebar.write("opening mail..")
-    if add_selectbox=="Contact number":
-        st.sidebar.write("calling..")
-    if add_selectbox=="LinkedIn":
-        st.sidebar.write("opening LinkedIn..")
-    #with st.sidebar:
-    #    selected=option_menu(
-    #        menu_title=None,
-    #        options=["department1"," 2"," 3"], 
-    #   
-    #)
-   # 
-   # if selected=="department1":
-   #     st.write("1..")
-   # if selected==" 2":
-   #     st.write("2...")
-   # if selected==" 3":
-   #     st.write("3....")
+elif selected == "contact us":
+    st.markdown(
+    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>Contact Us</span></h2></p>",
+    unsafe_allow_html=True)
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+    st.write(':email: <a href="mailto:example@example.com">example@example.com</a>', unsafe_allow_html=True)
+
+    st.write(":phone: xxx-xxxx-xxxx")
+    st.write(":link: [Twitter](https://twitter.com/natwestgroup)")
+    st.write(":link: [LinkedIn](https://www.linkedin.com/company/natwest-group/mycompany/)")
+    st.write(":link: [Instagram](https://www.instagram.com/natwest/)")
 
 
-
-if selected=="About":
     
-    st.header("hi")
 
+elif selected=="About":
+    st.markdown(
+    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>About</span></h2></p>",
+    unsafe_allow_html=True)
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+    #st.header("hi")
+    with st.container():
+        with st.sidebar:
+            subselect = option_menu(
+                menu_title=None,
+                options=["About Company","CDIO Team"],
+                #icons=["graph-up-arrow","graph-up-arrow","graph-up-arrow"],
+                # menu_icon = <i class ="graph-up-arrow" style="font-size: 2rem; color: cornflowerblue;" > < / i >
+                #menu_icon="graph-up-arrow",
+                #orientation="horizontal",
+                default_index=0,
+                styles={
+                    "container": {"padding": "0!important", "background-color": "#f8f5fa"},
+                    # "icon": {"color": "orange", "font-size": "15px"},
+                    "nav-link": {"font-size": "14px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+                    "menu-icon": {"color": "purple"},
+                    "nav-link-selected": {"color": "black", "font-size": "12px", "font-weight": "bold",
+                                        "background-color": "#eee"},
+                    "icon": {"color": "purple"},
+                    #"menu-title": {"font-size": "15px", "font-weight": "bold"}
+                }
+            )
+    if subselect=="About Company":
+        st.markdown("""
+                        <style>
+                                .custom-1 {
+                                                padding:0px; /* Adjust the padding as needed */
+                                                 margin-bottom: -10px}
+                                               </style>
+                    """, unsafe_allow_html=True)
+
+
+        st.markdown("<p class='custom-1'><div style='text-align:left; font-size:28px;'><b>NatWest Group </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+        st.write("NatWest Group is a British banking and insurance holding company, based in Edinburgh, Scotland. The group operates a wide variety of banking brands offering personal and business banking, private banking, investment banking, insurance and corporate finance.")
+    if subselect=="CDIO Team":
+        st.markdown("<p class='custom-1'><div style='text-align:left; font-size:28px;'><b>CDIO Team </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+        st.write("About Team")
 
 st.markdown('<style>div.block-container{padding-top:0.05rem;}</style>',unsafe_allow_html=True)
 
