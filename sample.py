@@ -1,82 +1,86 @@
-# Importing necessary modules
-import streamlit as st
-import pandas as pd
-import numpy as np
-from PIL import Image
-import os
-from streamlit_option_menu import option_menu
-import warnings
-
-# Ignore warnings for a cleaner output
-warnings.filterwarnings('ignore')
-
-# Set page configuration for the dashboard
-st.set_page_config(page_title="sample dashboard", page_icon=":bar_chart:",layout="wide")
-
-# CSS for the background and header styling
-page_bg_img = '''
-# ... [skipping CSS for brevity]
-'''
-
-# Applying the CSS to the Streamlit App
-st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# Function to load an image using the given path
-def load_image(image_path):
-        return Image.open(image_path)
-
-# Set up the layout with two columns, with the first column being narrower than the second
-coli1, coli2 = st.columns([1, 4])
-with coli1:
-    # Load and display the logo
-    imge1 = load_image("logo.png")
-    st.image(imge1)
-
-# More CSS for styling the text and divider
-st.markdown("""
-# ... [skipping CSS for brevity]
-""", unsafe_allow_html=True)
-
-# Begin main content container
-with st.container():
-    # Sidebar for navigation
-    with st.sidebar:
-        # Create a navigation menu with icons
-        selected = option_menu(
-            # ... [menu options and styles]
-        )
-
-# Add a divider in the sidebar for aesthetics
-st.sidebar.divider()
-
-# Page content based on the selected option from the navigation menu
-if selected == "home":
-    # Header for the home page
+# Checking if the user has selected the "projects" option from the sidebar menu
+elif selected=="projects":
+    
+    # Setting the header for the projects page
+    # Sample: st.markdown("<your_html_content>", unsafe_allow_html=True)
     st.markdown(
-    # ... [skipping for brevity]
-    )
+    "<p class='custom-text'><h2 style=text-align:center;><span style='color:purple'>Projects</span></h2></p>",
+    unsafe_allow_html=True)
+    
+    # Adding a custom divider for aesthetic purposes
+    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-    # Welcome message for the home page
-    st.write("welcome to streamlit")
-    # Display a sample image
-    image_nat = load_image("n.png")
-    st.image(image_nat, use_column_width=True)
-
-# ... [similar logic for other pages such as projects, contact us, and about]
-
-elif selected == "contact us":
-    # Header for the contact page
-    st.markdown(
-    # ... [skipping for brevity]
-    )
-    # Display contact details including email, phone, and social media links
-    st.write(':email: <a href="mailto:example@example.com">example@example.com</a>', unsafe_allow_html=True)
-    st.write(":phone: xxx-xxxx-xxxx")
-    st.write(":link: [Twitter](https://twitter.com/natwestgroup)")
-    st.write(":link: [LinkedIn](https://www.linkedin.com/company/natwest-group/mycompany/)")
-    st.write(":link: [Instagram](https://www.instagram.com/natwest/)")
-
-# ... [similar logic for the about page]
-
-# Apply global CSS styles to the app
-st.markdown('<style>div.block-container{padding-top:0.05rem;}</style>',unsafe_allow_html=True)
+    # Create a container for the projects content
+    with st.container():
+        
+        # Adding a sub-menu in the sidebar for different analyses within the projects
+        with st.sidebar:
+            
+            # Define the sub-menu options for different project analyses
+            subselect = option_menu(
+                # ... [your menu configurations here for the sub-menu]
+            )
+    
+    # Content for Analysis 1 under the "projects" page
+    if subselect=="Analysis 1":
+        
+        # Styling specific elements for Analysis 1
+        # Sample: st.markdown("<your_html_content>", unsafe_allow_html=True)
+        st.markdown("""
+                        <style>
+                                .custom-1 {
+                                                padding:0px; /* Adjust the padding as needed */
+                                                 margin-bottom: -40px}
+                                               </style>
+                    """, unsafe_allow_html=True)
+        
+        # Setting the header for Analysis 1
+        st.markdown("<p class='custom-1'><div style='text-align:center; font-size:24px;'><b>Analysis 1 </b> <span style = 'font-size:18px;'></span></div></p>", unsafe_allow_html=True)
+        
+        # Displaying filtering options in the sidebar
+        st.sidebar.header("Filter: ")
+        st.sidebar.subheader("select date range")
+        st.sidebar.date_input("Start Date")
+        st.sidebar.date_input("End Date")
+        
+        # Slider and checkbox for additional filtering options
+        slider_value=st.sidebar.slider("select a value",0,100,50)
+        checkbox_option=st.sidebar.checkbox("show data")
+        
+        # Sample data for display purposes, replace with your actual data
+        data=pd.DataFrame({'x':np.random.rand(100),'y':np.random.rand(100)})
+        if checkbox_option:
+            st.subheader("random data")
+            st.write(data)
+        
+        # Dropdown menu for selecting the type of graph
+        selected_option = st.selectbox("",['line graph', 'bar graph', 'histogram'])
+        
+        # Displaying a corresponding image based on the selected graph type
+        # Sample: if selected_option == "<your_option>": load_image("<your_image_path>")
+        if selected_option == "line graph":
+            image1_path = load_image("8.png")
+        elif selected_option == "bar graph":
+            image1_path = load_image("9.png")
+        elif selected_option == "histogram":
+            image1_path = load_image("0.png")
+        
+        # Displaying the loaded image
+        st.image(image1_path, use_column_width=True)
+        
+        # Tabs for additional content. Replace "TAB1" and "TAB2" with your tab names.
+        tab1, tab2 = st.tabs(["TAB1", "TAB2"])
+        
+        # Content within the first tab
+        with tab1:
+            # ... [your content for TAB1]
+        
+        # Content within the second tab
+        with tab2:
+            # ... [your content for TAB2]
+    
+    # Similarly, you can define content for other analyses like "Analysis 2", "Analysis 3", etc.
+    # ...
+    # Example:
+    # elif subselect == "<your_analysis_option>":
+    #     st.write("Your content for the selected analysis")
