@@ -1,14 +1,20 @@
-col1, col2 = st.columns((2))
-df["Order Date"] = pd.to_datetime(df["Order Date"])
+#import pandas as pd
+#import json
 
-# Getting the min and max date 
-startDate = pd.to_datetime(df["Order Date"]).min()
-endDate = pd.to_datetime(df["Order Date"]).max()
+# Load your JSON file into a DataFrame
+# Replace 'your_file.json' with the path to your JSON file
+#df = pd.read_json('C:\\Users\\LENOVO\\Downloads\\New Compressed (zipped) Folder\\TNTR_trade_prodprl_sample_data_k.json')
 
-with col1:
-    date1 = pd.to_datetime(st.date_input("Start Date", startDate))
+# Convert the 'from' column to string if it's not already
+dff['from'] = dff['from'].astype(str)
 
-with col2:
-    date2 = pd.to_datetime(st.date_input("End Date", endDate))
+# Extract the date part and store it in a new column named 'date'
+dff['date'] = dff['from'].apply(lambda x: x.split('T')[0])
 
-df = df[(df["Order Date"] >= date1) & (df["Order Date"] <= date2)].copy()
+# Save the updated DataFrame back to a JSON file
+# Replace 'updated_file.json' with the desired output file name
+#df.to_json('C:\\Users\\LENOVO\\Downloads\\New Compressed (zipped) Folder\\updated.json', orient='records', lines=True)
+
+# Optionally, print to verify
+dff.head()
+
