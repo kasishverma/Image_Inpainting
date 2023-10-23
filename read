@@ -1,20 +1,7 @@
-#import pandas as pd
-#import json
-
-# Load your JSON file into a DataFrame
-# Replace 'your_file.json' with the path to your JSON file
-#df = pd.read_json('C:\\Users\\LENOVO\\Downloads\\New Compressed (zipped) Folder\\TNTR_trade_prodprl_sample_data_k.json')
-
-# Convert the 'from' column to string if it's not already
-dff['from'] = dff['from'].astype(str)
-
-# Extract the date part and store it in a new column named 'date'
-dff['date'] = dff['from'].apply(lambda x: x.split('T')[0])
-
-# Save the updated DataFrame back to a JSON file
-# Replace 'updated_file.json' with the desired output file name
-#df.to_json('C:\\Users\\LENOVO\\Downloads\\New Compressed (zipped) Folder\\updated.json', orient='records', lines=True)
-
-# Optionally, print to verify
-dff.head()
-
+AttributeError: 'list' object has no attribute 'columns'
+Traceback:
+File "C:\dev\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 541, in _run_script
+    exec(code, module.__dict__)
+File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\tntrdash.py", line 89, in <module>
+    col1, col2 = st.columns(2)
+                 ^^^^^^^^^^
