@@ -1,7 +1,0 @@
-AttributeError: 'list' object has no attribute 'columns'
-Traceback:
-File "C:\dev\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 541, in _run_script
-    exec(code, module.__dict__)
-File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\tntrdash.py", line 89, in <module>
-    col1, col2 = st.columns(2)
-                 ^^^^^^^^^^
