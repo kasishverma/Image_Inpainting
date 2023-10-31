@@ -4,7 +4,7 @@ import shutil
 import os
 
 # Create a folder to save uploaded files, if it doesn't exist
-save_folder = "uploaded_files"
+save_folder = "C:/Users/LENOVO/Downloads/newww"
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
 
@@ -24,6 +24,6 @@ if fl is not None:
     df_2 = pd.read_json(saved_file_path, encoding = "ISO-8859-1")
 
 else:
-    df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
+    df_2 = pd.read_json('C:/Users/LENOVO/Downloads/Shoaib_Compliance.pdf')
 
 # Rest of your code
