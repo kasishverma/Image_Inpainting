@@ -1,1 +1,28 @@
-AttributeError: 'DataFrame' object has no attribute 'id'
+import streamlit as st
+import pandas as pd
+import json
+
+co1, co2 = st.columns(2)
+
+with co1:
+    fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
+
+    if fl is not None:
+        filename = fl.name
+        st.write(f"Uploaded file: {filename}")
+
+        # Read the buffer and load it into a dictionary
+        file_buffer = fl.read()
+        json_content = json.loads(file_buffer.decode("utf-8"))
+
+    else:
+        df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
+        json_content = df_2.to_dict()
+
+# Perform normalization later
+if json_content:
+    df_21 = pd.json_normalize(json_content['id'])
+    df_22 = pd.json_normalize(json_content['lifetime'])
+    df_23 = pd.json_normalize(json_content['document'])
+    
+    dff = pd.concat([df_21, df_22, df_23], axis=1)
