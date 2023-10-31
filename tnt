@@ -1,24 +1,23 @@
-co1,co2=st.columns(2)
-    with co1:
-        fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
+co1, co2 = st.columns(2)
 
-        if fl is not None:
-            filename = fl.name
-            st.write(f"Uploaded file: {filename}")
+with co1:
+    fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
 
-    # Read the buffer and load it into a DataFrame
-            file_buffer = fl.read()
-            json_content = json.loads(file_buffer)
-            df_2 = pd.json_normalize(json_content)
+    if fl is not None:
+        filename = fl.name
+        st.write(f"Uploaded file: {filename}")
 
-    # Perform analysis on df_2 here
+        # Read the buffer and load it into a DataFrame
+        file_buffer = fl.read()
+        json_content = json.loads(file_buffer.decode("utf-8"))
+        df_2 = pd.DataFrame([json_content])
 
-        else:
-            df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
+    else:
+        df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
 
+# Perform normalization later
+df_21 = pd.json_normalize(df_2['id'][0])
+df_22 = pd.json_normalize(df_2['lifetime'][0])
+df_23 = pd.json_normalize(df_2['document'][0])
 
-    # df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_data_k.json\TNTR_trade_prodprl_sample_data_k.json')
-    df_21 = pd.json_normalize(df_2.id)
-    df_22 = pd.json_normalize(df_2.lifetime)
-    df_23 = pd.json_normalize(df_2.document)
-    dff = pd.concat([df_21, df_22, df_23], axis=1)
+dff = pd.concat([df_21, df_22, df_23], axis=1)
