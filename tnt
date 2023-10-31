@@ -1,0 +1,11 @@
+fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
+        if fl is not None:
+            filename = fl.name
+            st.write(filename)
+            # df_2 = pd.read_json(filename, encoding = "ISO-8859-1")
+            #df_2=pd.read_csv(pd.concat("r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\", filename))
+            df_2 = pd.read_json(filename)
+
+        else:
+            df_2 = pd.read_json(
+                r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
