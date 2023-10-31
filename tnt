@@ -1,19 +1,24 @@
-import streamlit as st
-import pandas as pd
-import json
+co1,co2=st.columns(2)
+    with co1:
+        fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
 
-fl = st.file_uploader(":file_folder: Upload a file", type=(["json"]))
-
-if fl is not None:
-    filename = fl.name
-    st.write(f"Uploaded file: {filename}")
+        if fl is not None:
+            filename = fl.name
+            st.write(f"Uploaded file: {filename}")
 
     # Read the buffer and load it into a DataFrame
-    file_buffer = fl.read()
-    json_content = json.loads(file_buffer)
-    df_2 = pd.json_normalize(json_content)
+            file_buffer = fl.read()
+            json_content = json.loads(file_buffer)
+            df_2 = pd.json_normalize(json_content)
 
     # Perform analysis on df_2 here
 
-else:
-    df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
+        else:
+            df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_sept.json\TNTR_trade_prodprl_sample_sept.json')
+
+
+    # df_2 = pd.read_json(r'\\rbsres01\shareddata\rassre\AIMLData\TNTR\TNTR_trade_prodprl_sample_data_k.json\TNTR_trade_prodprl_sample_data_k.json')
+    df_21 = pd.json_normalize(df_2.id)
+    df_22 = pd.json_normalize(df_2.lifetime)
+    df_23 = pd.json_normalize(df_2.document)
+    dff = pd.concat([df_21, df_22, df_23], axis=1)
