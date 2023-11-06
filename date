@@ -24,3 +24,33 @@ ValueError: time data "2023-01-01T00:03:25.942Z" doesn't match format "%Y/%m/%d"
 
 *********************
 AttributeError: 'Index' object has no attribute 'strftime'
+
+**************
+
+
+
+in the below code, when i am printing dff_vol.date.value_counts() and dff_f_vol.date.value_counts() the dates it is reading as yyyy/mm/dd which are actually the date for yyyy/dd//mm , means date and month values are excghanged to each other . please correct it.
+
+dff['date'] = pd.to_datetime(dff['nonReportableData.tntrReceivedTimestamp'],dayfirst = True).dt.strftime('%Y/%m/%d')
+dff['day'] = pd.to_datetime(dff['nonReportableData.tntrReceivedTimestamp'],dayfirst = True).dt.day_name()
+dff_vol = dff[dff['day']!='Saturday']
+dff_vol = dff[dff['day']!='Sunday']
+dff_f['date'] = pd.to_datetime(dff_f['nonReportableData.tntrReceivedTimestamp'],dayfirst = True).dt.date
+dff_f['day'] = pd.to_datetime(dff_f['nonReportableData.tntrReceivedTimestamp'],dayfirst = True).dt.day_name()
+dff_f_vol = dff_f[dff_f['day']!='Saturday']
+dff_f_vol = dff_f[dff_f['day']!='Sunday']
+
+print(dff_vol.date.value_counts())
+print(dff_f_vol.date.value_counts())
+fig_1 = go.Figure()
+fig_1.add_trace(go.Scatter(x=dff_vol.date.value_counts().index.sort_values(), y = dff_vol.date.value_counts().sort_index(),
+                    mode='lines+markers',
+                    name='Transaction All Versions'))
+fig_1.add_trace(go.Scatter(x=dff_f_vol.date.value_counts().index.sort_values(), y = dff_f_vol.date.value_counts().sort_index(),
+                    mode='lines+markers',
+                    name='Unique Transactions'))
+fig_1.update_layout(
+    title="System Processing Volumes",title_x=0.4
+)
+#fig_1.show()
+stre.plotly_chart(fig_1, use_container_width=True, height=300)
