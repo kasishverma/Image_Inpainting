@@ -14,3 +14,9 @@ dff["transactionReportingStatus.stateTransitionDateTime"] = pd.to_datetime(dff["
 
 # This should explicitly parse the date in 'yyyy/mm/dd' format
 
+
+********************
+ValueError: time data "2023-01-01T00:03:25.942Z" doesn't match format "%Y/%m/%d", at position 0. You might want to try:
+    - passing `format` if your strings have a consistent format;
+    - passing `format='ISO8601'` if your strings are all ISO8601 but not necessarily in exactly the same format;
+    - passing `format='mixed'`, and the format will be inferred for each element individually. You might want to use `dayfirst` alongside this.
