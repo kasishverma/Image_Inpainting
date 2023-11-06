@@ -1,8 +1,6 @@
-fig_1.update_layout(
-    title="System Processing Volumes",
-    title_x=0.4,
-    xaxis=dict(
-        type='date',  # Set the x-axis type to date
-        tickformat='%Y/%m/%d'  # Specify the date format as yyyy/mm/dd
-    )
-)
+import locale
+
+# Set the desired date format
+locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')
+
+# Now, your code should read dates in 'yyyy/mm/dd' format
