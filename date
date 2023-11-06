@@ -4,3 +4,13 @@ import locale
 locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')
 
 # Now, your code should read dates in 'yyyy/mm/dd' format
+
+***********************************
+
+import pandas as pd
+
+# Replace the existing date parsing line with this one
+dff["transactionReportingStatus.stateTransitionDateTime"] = pd.to_datetime(dff["transactionReportingStatus.stateTransitionDateTime"], format='%Y/%m/%d')
+
+# This should explicitly parse the date in 'yyyy/mm/dd' format
+
