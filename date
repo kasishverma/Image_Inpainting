@@ -1,10 +1,1 @@
-event_log = pm4py.format_dataframe(sett_audit, case_id='ID', activity_key='WQTY_CODE_CURRENT', timestamp_key='UPDATEDDATE')
-start_activities = pm4py.get_start_activities(event_log)
-end_activities = pm4py.get_end_activities(event_log)
-col1,col2=st.columns(2)
-with col1:
-    DraftSettlementWFQueue = pm4py.filter_start_activities(event_log, {'DraftSettlementWFQueue'})
-    DraftSettlementWFQueue = pd.DataFrame(DraftSettlementWFQueue)
-
-    map = pm4py.discover_heuristics_net(DraftSettlementWFQueue)
-    st.plotly_chart(pm4py.view_heuristics_net(map), use_container_width=True, height=300)
+AttributeError: module 'pm4py' has no attribute 'convert_to_dot'
