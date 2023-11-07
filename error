@@ -1,12 +1,36 @@
 AttributeError: module 'pm4py.visualization.heuristics_net' has no attribute 'to_dot'
 
 
-dot = Digraph()
-for node in map.nodes:
-    dot.node(node)
+pip install networkx pygraphviz nxpd
 
-for edge in map.arcs:
-    dot.edge(edge.source, edge.target, label=str(edge.weight))
+import streamlit as st
+import pm4py
+import pandas as pd
+import networkx as nx
+from nxpd import draw
 
-# Display the heuristic process map using Graphviz in Streamlit
-st.graphviz_chart(dot.source)
+# Assuming you have 'sett_audit' DataFrame and the code to preprocess it
+
+# Create a Streamlit app
+st.title("Heuristic Process Map in Streamlit")
+
+# Load your event log and create the process map
+event_log = pm4py.format_dataframe(sett_audit, case_id='ID', activity_key='WQTY_CODE_CURRENT', timestamp_key='UPDATEDDATE')
+start_activities = pm4py.get_start_activities(event_log)
+end_activities = pm4py.get_end_activities(event_log)
+DraftSettlementWFQueue = pm4py.filter_start_activities(event_log, {'DraftSettlementWFQueue'})
+DraftSettlementWFQueue = pd.DataFrame(DraftSettlementWFQueue)
+
+map = pm4py.discover_heuristics_net(DraftSettlementWFQueue)
+
+# Create a NetworkX graph for the heuristic process map
+heuristic_map_graph = nx.DiGraph()
+for arc in map.arcs:
+    heuristic_map_graph.add_edge(arc.source, arc.target, weight=arc.weight)
+
+# Display the heuristic process map in Streamlit
+st.graphviz_chart(draw(heuristic_map_graph, show='ipynb'))
+
+# Run the Streamlit app
+if __name__ == "__main__":
+    st.write("This is a Streamlit app to display a heuristic process map.")
