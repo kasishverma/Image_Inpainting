@@ -1,1 +1,14 @@
 AttributeError: module 'pm4py.visualization.heuristics_net' has no attribute 'to_dot'
+
+
+dot_data = "digraph G {\n"
+for arc in map.arcs:
+    dot_data += f'"{arc.source}" -> "{arc.target}" [label="{arc.weight:.2f}"];\n'
+dot_data += "}"
+
+# Display the heuristic process map using Graphviz in Streamlit
+st.graphviz_chart(dot_data)
+
+# Run the Streamlit app
+if __name__ == "__main__":
+    st.write("This is a Streamlit app to display a heuristic process map.")
