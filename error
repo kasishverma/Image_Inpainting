@@ -1,36 +1,37 @@
-AttributeError: module 'pm4py.visualization.heuristics_net' has no attribute 'to_dot'
-
-
-pip install networkx pygraphviz nxpd
-
-import streamlit as st
-import pm4py
 import pandas as pd
-import networkx as nx
-from nxpd import draw
-
-# Assuming you have 'sett_audit' DataFrame and the code to preprocess it
+import streamlit as st
+from pm4py.objects.log.importer.xes import factory as xes_importer
+from pm4py.objects.petri.importer import importer as petri_importer
+from pm4py.visualization.petrinet import factory as pn_vis_factory
 
 # Create a Streamlit app
-st.title("Heuristic Process Map in Streamlit")
+st.title("Petri Net Graph from DataFrame")
 
-# Load your event log and create the process map
-event_log = pm4py.format_dataframe(sett_audit, case_id='ID', activity_key='WQTY_CODE_CURRENT', timestamp_key='UPDATEDDATE')
-start_activities = pm4py.get_start_activities(event_log)
-end_activities = pm4py.get_end_activities(event_log)
-DraftSettlementWFQueue = pm4py.filter_start_activities(event_log, {'DraftSettlementWFQueue'})
-DraftSettlementWFQueue = pd.DataFrame(DraftSettlementWFQueue)
+# Upload a CSV file containing your event log data
+uploaded_file = st.file_uploader("Upload your event log (CSV format)", type=["csv"])
 
-map = pm4py.discover_heuristics_net(DraftSettlementWFQueue)
+if uploaded_file is not None:
+    # Load the event log from the CSV file
+    log = pd.read_csv(uploaded_file)
+    
+    # Convert the DataFrame to an XES event log
+    from pm4py.objects.log.log import EventLog
+    from pm4py.objects.log.log import EventStream
+    event_log = EventLog()
+    for idx, row in log.iterrows():
+        event = {'concept:name': row['activity'], 'time:timestamp': pd.to_datetime(row['timestamp'])}
+        event_stream = EventStream()
+        event_stream.append(event)
+        event_log.append(event_stream)
 
-# Create a NetworkX graph for the heuristic process map
-heuristic_map_graph = nx.DiGraph()
-for arc in map.arcs:
-    heuristic_map_graph.add_edge(arc.source, arc.target, weight=arc.weight)
+    # Create a Petri net from the event log
+    net, initial_marking, final_marking = petri_importer.apply(event_log)
 
-# Display the heuristic process map in Streamlit
-st.graphviz_chart(draw(heuristic_map_graph, show='ipynb'))
+    # Visualize the Petri net
+    st.subheader("Petri Net Visualization")
+    st.write("This is the Petri Net graph of your event log:")
+    petrinet_image = pn_vis_factory.apply(net, initial_marking, final_marking)
+    st.image(petrinet_image, caption="Petri Net Graph", use_container_width=True)
 
-# Run the Streamlit app
-if __name__ == "__main__":
-    st.write("This is a Streamlit app to display a heuristic process map.")
+    # You can add more content to your Streamlit app as needed
+    # For example, you can include statistics or other visualizations related to your data
