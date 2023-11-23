@@ -1,7 +1,0 @@
-map = pm4py.discover_heuristics_net(DraftSettlementWFQueue)
-
-# Export the heuristic process map to a DOT format
-dot_data = pm4py.visualization.heuristics_net.to_dot(map)
-
-# Display the heuristic process map using Graphviz in Streamlit
-st.graphviz_chart(dot_data)
