@@ -1,31 +1,91 @@
-with st.form("date_filter_form"):
-        #co2 = st.columns(1)[0]  # Use a new name for the third column
-        with co2:
-        # Date range input
-            date_range = st.date_input("Pick a date range", (startDate.date(), endDate.date()))
+sett_curr = '''
+            select 
+                SETTLEMENT_DATE, 
+                curr_iso_code, 
+                count(*)
+            from 
+                ioa_settlement
+            where 
+                SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and 
+                SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy') and 
+                wqty_code_current not like ('%DeletedWFQueue%')
+            group by 
+                SETTLEMENT_DATE,
+                curr_iso_code
+            order by 
+                1,2 asc''';
 
-            # "Apply Filter" button
-            submitted_filter = st.form_submit_button("Apply Filter")
+    df_sett_curr = pd.read_sql(sett_curr, connection)
 
-    # Check if the date filter form was submitted
-    if submitted_filter:
-        # Check the length of the date_range
-        if isinstance(date_range, tuple) and len(date_range) == 2:
-            # Extract start and end dates from the selected date range
-            start, end = date_range
 
-            # Convert date to datetime for comparison
-            start = pd.to_datetime(start)
-            end = pd.to_datetime(end)
+*****************
 
-            # Apply the filter to the data
-            sett_audit = sett_audit[(sett_audit["SETTLEMENT_DATE"] >= start) & (sett_audit["SETTLEMENT_DATE"] <= end)].copy()
-            df12 = df12[(df12["SETTLEMENT_DATE"] >= start) & (df12["SETTLEMENT_DATE"] <= end)].copy()
-            df_sett_ops_main = df_sett_ops_main[(df_sett_ops_main["SETTLEMENT_DATE"] >= start) & (df_sett_ops_main["SETTLEMENT_DATE"] <= end)].copy()
-            df_sett_curr = df_sett_curr[(df_sett_curr["SETTLEMENT_DATE"] >= start) & (df_sett_curr["SETTLEMENT_DATE"] <= end)].copy()
-            #df10 = df10[(df10["SETTLEMENT_DATE"] >= date1) & (df10["SETTLEMENT_DATE"] <= date2)].copy()
-            #df11 = df11[(df11["SETTLEMENT_DATE"] >= date1) & (df11["SETTLEMENT_DATE"] <= date2)].copy()
-            sett_audit4 = sett_audit4[(sett_audit4["SETTLEMENT_DATE"] >= start) & (sett_audit4["SETTLEMENT_DATE"] <= end)].copy()
-        else:
-            # Handle the case when only one date is selected
-            st.write("Please select both start and end dates.")
+query10 = '''select v1.CCY, round(sum(v1.AMOUNT),2) as BASE_CCY_AMOUNT, round(sum(v1.GBP_EQUIVALENT),2) AS GBP_AMOUNT 
+    from 
+    (select ios.curr_iso_code ccy, ios.amount, ios.amount*(1/e.MID_SPOT_RATE) GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code=e.curr_iso_code_to 
+    and e.curr_iso_code_from='GBP'
+    and amount < 0 
+    union
+    select ios.curr_iso_code ccy, ios.amount, ios.amount*e.MID_SPOT_RATE GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code=e.curr_iso_code_from 
+    and e.curr_iso_code_to='GBP'
+    and amount < 0 
+    union
+    select ios.curr_iso_code ccy, ios.amount, ios.amount GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code='GBP' 
+    and amount < 0 ) v1
+    group by v1.CCY''';
+
+    df10 = pd.read_sql(query10, connection)
+
+************
+
+query11 = '''select v1.CCY, round(sum(v1.AMOUNT),2) as BASE_CCY_AMOUNT, round(sum(v1.GBP_EQUIVALENT),2) AS GBP_AMOUNT 
+    from 
+    (select ios.curr_iso_code ccy, ios.amount, ios.amount*(1/e.MID_SPOT_RATE) GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code=e.curr_iso_code_to 
+    and e.curr_iso_code_from='GBP'
+    and amount > 0 
+    union
+    select ios.curr_iso_code ccy, ios.amount, ios.amount*e.MID_SPOT_RATE GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code=e.curr_iso_code_from 
+    and e.curr_iso_code_to='GBP'
+    and amount > 0 
+    union
+    select ios.curr_iso_code ccy, ios.amount, ios.amount GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
+    where 
+    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
+    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
+    and ios.curr_iso_code='GBP' 
+    and amount > 0 ) v1
+    group by v1.CCY''';
+
+    df11 = pd.read_sql(query11, connection)
+
+*******************
+
+query12 = '''
+            select s.*, p.LONG_NAME, p.INTERNAL_FLAG as cpty_internalflag 
+            from aa$ioa_settlement s, ioa_party p 
+            where s.PART_ID_COUNTERPARTY = p.ID
+            and settlement_date between '01-jul-2023' and '31-jul-2023'
+            and wqty_code_current not like ('%DeletedWFQueue%')''';
+
+    df12 = pd.read_sql(query12, connection)
+*********
