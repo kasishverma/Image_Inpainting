@@ -1,4 +1,4 @@
-with st.form("date_filter_form"):
+    with st.form("date_filter_form"):
         #co2 = st.columns(1)[0]  # Use a new name for the third column
     
     # Date range input
@@ -6,7 +6,7 @@ with st.form("date_filter_form"):
 
         # "Apply Filter" button
         submitted_filter = st.form_submit_button("Apply Filter")
-
+    date1,date2=None,None
     # Check if the date filter form was submitted
     if submitted_filter:
         # Check the length of the date_range
@@ -17,9 +17,9 @@ with st.form("date_filter_form"):
             # Convert date to datetime for comparison
             date1 = pd.to_datetime(date1)
             date2 = pd.to_datetime(date2)
-        if date1<=date2:
-            date1=date1.strftime("%Y-%m-%d")
-            date2=date2.strftime("%Y-%m-%d")
+        # if date1<=date2:
+        #     date1=date1.strftime("%Y-%m-%d")
+        #     date2=date2.strftime("%Y-%m-%d")
 
     tab1, tab2 = st.tabs(["BUSINESS", "TECHNOLOGY"])
     sett_ops = '''select *
@@ -28,3 +28,93 @@ with st.form("date_filter_form"):
         trunc(SETTLEMENT_DATE) BETWEEN :date1 AND :date2''';
 
     df_sett_ops_main = pd.read_sql(sett_ops, connection, params={'date1':date1, 'date2':date2})
+    # SETTLEMENT OVERALL BOOKINGS
+    # sett_ops = '''select *
+    # from ioa_settlement
+    # where SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy')
+    # and SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
+
+    # df_sett_ops_main = pd.read_sql(sett_ops, connection)
+    print(df_sett_ops_main.shape)
+
+    df_sett_ops = df_sett_ops_main.copy()
+
+    df_sett_ops = df_sett_ops.groupby(['SETTLEMENT_DATE', 'CREATED_BY']).size().reset_index().rename(
+        columns={0: 'COUNT'})
+    df_sett_ops['SETTLEMENT_DATE']=pd.to_datetime(df_sett_ops['SETTLEMENT_DATE'])
+    df_sett_ops['day_name'] = df_sett_ops.SETTLEMENT_DATE.dt.day_name()
+    df_sett_ops = df_sett_ops[~df_sett_ops['day_name'].isin(['Sunday', 'Saturday'])]
+
+    print(df_sett_ops.shape)
+    print(df_sett_ops.groupby('SETTLEMENT_DATE')['COUNT'].sum().sum())
+    # Creating DF for late bookings
+    
+    df_sett_ops_main['CREATEDDATE']=pd.to_datetime(df_sett_ops_main['CREATEDDATE'])
+    df_sett_ops_main['SETTLEMENT_DATE']=pd.to_datetime(df_sett_ops_main['SETTLEMENT_DATE'])
+    df_late_book = df_sett_ops_main[
+        df_sett_ops_main['CREATEDDATE'].dt.date > df_sett_ops_main['SETTLEMENT_DATE'].dt.date]
+    df_late_book = df_late_book.groupby(['SETTLEMENT_DATE']).size().reset_index().rename(columns={0: 'COUNT'})
+
+    print(df_late_book.shape)
+    colors = ['#CCE5FF', '#99CCFF', '#66B2FF', '#3399FF', '#0080FF']
+    # AUDIT DATAFRAME
+    sett = '''
+        select
+            *
+        from
+            aa$ioa_settlement
+        where
+        settlement_date between :date1 AND :date2 ''';
+
+    sett_audit = pd.read_sql(sett, connection, params={'date1':date1, 'date2':date2})   
+    # sett = '''
+    #     select
+    #         *
+    #     from
+    #         aa$ioa_settlement
+    #     where
+    #         SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and
+    #         SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
+
+    # sett_audit = pd.read_sql(sett, connection)
+
+    #print('loading csv file')
+
+    #sett_audit = pd.read_csv(r'\\rbsres01\shareddata\rassre\AIMLData\Glacier\sett_audit.csv')
+    sett_audit['day_name'] = pd.to_datetime(sett_audit['SETTLEMENT_DATE']).dt.day_name()
+
+    # sett_audit['day_name'] = sett_audit.SETTLEMENT_DATE.dt.day_name()
+    sett_audit = sett_audit[~sett_audit['day_name'].isin(['Sunday', 'Saturday'])]
+
+    print(sett_audit.shape)
+
+    sys = ['glapp', 'ca_gpdp5', 'FPRPCLP']
+    user_list = sett_audit.UPDATED_BY.value_counts().index.to_list()
+    item_list = [e for e in user_list if e not in sys]
+
+    ##Re-writing code for Label column]
+
+    # sett_audit['Label'] = ''
+    #
+    # for id in sett_audit['ID'].unique():
+    #     id_rows = sett_audit[sett_audit['ID'] == id]
+    #     if any(row['UPDATED_BY'] in item_list for _, row in id_rows.iterrows()):
+    #         sett_audit.loc[sett_audit['ID'] == id, 'Label'] = 'NON_STP'
+    #     else:
+    #         sett_audit.loc[sett_audit['ID'] == id, 'Label'] = 'STP'
+
+    # Defining Label column for STP & NON-STP Data
+
+    sys = ['glapp', 'ca_gpdp5', 'FPRPCLP']
+    df_user = pd.DataFrame(item_list).reset_index(drop=True).rename(columns={0: 'UPDATED_BY'})
+    df_user['STP_NON_STP'] = 'NON_STP'
+    df_merge = pd.merge(sett_audit, df_user, on = 'UPDATED_BY', how='left')
+    df_merge['STP_NON_STP'].fillna(value='STP', inplace=True)
+    df_stage1 = df_merge.groupby(['ID', 'STP_NON_STP']).size()
+    df_stage1 = pd.DataFrame(df_stage1.reset_index())
+    df_stage2 = df_merge.groupby(['ID', 'STP_NON_STP']).size().groupby(['ID']).size().sort_values(ascending=False)
+    df_stage2 = pd.DataFrame(df_stage2).reset_index().rename(columns={0: 'count'})
+    df_stage3 = pd.merge(df_stage2, df_stage1, on='ID', how='left')
+    df_stage4 = df_stage3[(df_stage3['count'] == 1) & (df_stage3['STP_NON_STP'] == 'NON_STP')]
+    df_stage4['count'].replace(to_replace=1, value='NON_STP', inplace=True)
+    df_stage5 
