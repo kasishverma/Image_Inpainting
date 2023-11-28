@@ -1,91 +1,23 @@
-sett_curr = '''
-            select 
-                SETTLEMENT_DATE, 
-                curr_iso_code, 
-                count(*)
-            from 
-                ioa_settlement
-            where 
-                SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and 
-                SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy') and 
-                wqty_code_current not like ('%DeletedWFQueue%')
-            group by 
-                SETTLEMENT_DATE,
-                curr_iso_code
-            order by 
-                1,2 asc''';
-
-    df_sett_curr = pd.read_sql(sett_curr, connection)
+  sett4 = '''
+                select 
+                    * 
+                from 
+                    aa$ioa_settlement 
+                WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')
+                                    AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')''';
 
 
-*****************
+    sett_audit4 = pd.read_sql(sett4, connection)
 
-query10 = '''select v1.CCY, round(sum(v1.AMOUNT),2) as BASE_CCY_AMOUNT, round(sum(v1.GBP_EQUIVALENT),2) AS GBP_AMOUNT 
-    from 
-    (select ios.curr_iso_code ccy, ios.amount, ios.amount*(1/e.MID_SPOT_RATE) GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code=e.curr_iso_code_to 
-    and e.curr_iso_code_from='GBP'
-    and amount < 0 
-    union
-    select ios.curr_iso_code ccy, ios.amount, ios.amount*e.MID_SPOT_RATE GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code=e.curr_iso_code_from 
-    and e.curr_iso_code_to='GBP'
-    and amount < 0 
-    union
-    select ios.curr_iso_code ccy, ios.amount, ios.amount GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code='GBP' 
-    and amount < 0 ) v1
-    group by v1.CCY''';
+    sett = '''
+        select
+            *
+        from
+            aa$ioa_settlement
+        WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')
+                                    AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')''';
 
-    df10 = pd.read_sql(query10, connection)
+    sett_audit = pd.read_sql(sett, connection)
 
-************
-
-query11 = '''select v1.CCY, round(sum(v1.AMOUNT),2) as BASE_CCY_AMOUNT, round(sum(v1.GBP_EQUIVALENT),2) AS GBP_AMOUNT 
-    from 
-    (select ios.curr_iso_code ccy, ios.amount, ios.amount*(1/e.MID_SPOT_RATE) GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code=e.curr_iso_code_to 
-    and e.curr_iso_code_from='GBP'
-    and amount > 0 
-    union
-    select ios.curr_iso_code ccy, ios.amount, ios.amount*e.MID_SPOT_RATE GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code=e.curr_iso_code_from 
-    and e.curr_iso_code_to='GBP'
-    and amount > 0 
-    union
-    select ios.curr_iso_code ccy, ios.amount, ios.amount GBP_Equivalent from ioa_settlement ios, ioa_exchange_rate e
-    where 
-    ios.settlement_date between '01-Jul-2023'and '31-Jul-2023' 
-    and ios.wqty_code_current = 'SettlementCompletedWFQueue'
-    and ios.curr_iso_code='GBP' 
-    and amount > 0 ) v1
-    group by v1.CCY''';
-
-    df11 = pd.read_sql(query11, connection)
-
-*******************
-
-query12 = '''
-            select s.*, p.LONG_NAME, p.INTERNAL_FLAG as cpty_internalflag 
-            from aa$ioa_settlement s, ioa_party p 
-            where s.PART_ID_COUNTERPARTY = p.ID
-            and settlement_date between '01-jul-2023' and '31-jul-2023'
-            and wqty_code_current not like ('%DeletedWFQueue%')''';
-
-    df12 = pd.read_sql(query12, connection)
-*********
+****
+DatabaseError: Execution failed on sql ' select * from aa$ioa_settlement WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy') AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')': ORA-01858: a non-numeric character was found where a numeric was expected
