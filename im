@@ -1,0 +1,30 @@
+with st.form("date_filter_form"):
+        #co2 = st.columns(1)[0]  # Use a new name for the third column
+    
+    # Date range input
+        date_range = st.date_input("Pick a date range")
+
+        # "Apply Filter" button
+        submitted_filter = st.form_submit_button("Apply Filter")
+
+    # Check if the date filter form was submitted
+    if submitted_filter:
+        # Check the length of the date_range
+        if isinstance(date_range, tuple) and len(date_range) == 2:
+            # Extract start and end dates from the selected date range
+            date1, date2 = date_range
+
+            # Convert date to datetime for comparison
+            date1 = pd.to_datetime(date1)
+            date2 = pd.to_datetime(date2)
+        if date1<=date2:
+            date1=date1.strftime("%Y-%m-%d")
+            date2=date2.strftime("%Y-%m-%d")
+
+    tab1, tab2 = st.tabs(["BUSINESS", "TECHNOLOGY"])
+    sett_ops = '''select *
+        from ioa_settlement
+        where 
+        trunc(SETTLEMENT_DATE) BETWEEN :date1 AND :date2''';
+
+    df_sett_ops_main = pd.read_sql(sett_ops, connection, params={'date1':date1, 'date2':date2})
