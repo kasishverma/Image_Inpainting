@@ -1,126 +1,31 @@
 with st.form("date_filter_form"):
         #co2 = st.columns(1)[0]  # Use a new name for the third column
-    
-    # Date range input
-        date_range = st.date_input("Pick a date range")
+        with co2:
+        # Date range input
+            date_range = st.date_input("Pick a date range", (startDate.date(), endDate.date()))
 
-        # "Apply Filter" button
-        submitted_filter = st.form_submit_button("Apply Filter")
-    date1,date2=None,None
+            # "Apply Filter" button
+            submitted_filter = st.form_submit_button("Apply Filter")
+
     # Check if the date filter form was submitted
     if submitted_filter:
         # Check the length of the date_range
         if isinstance(date_range, tuple) and len(date_range) == 2:
             # Extract start and end dates from the selected date range
-            date1, date2 = date_range
+            start, end = date_range
 
             # Convert date to datetime for comparison
-            date1 = pd.to_datetime(date1)
-            date2 = pd.to_datetime(date2)
-    tab1, tab2 = st.tabs(["BUSINESS", "TECHNOLOGY"])
+            start = pd.to_datetime(start)
+            end = pd.to_datetime(end)
 
-    # SETTLEMENT OVERALL BOOKINGS
-    # sett_ops = '''select *
-#     from ioa_settlement
-#     where 
-#     trunc(SETTLEMENT_DATE) BETWEEN :date1 AND :date2''';
-
-# df_sett_ops_main = pd.read_sql(sett_ops, connection, params={'date1':date1, 'date2':date2})
-    sett_ops = '''select *
-    from ioa_settlement
-    where SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy')
-    and SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
-
-    df_sett_ops_main = pd.read_sql(sett_ops, connection)
-    print(df_sett_ops_main.shape)
-
-    df_sett_ops = df_sett_ops_main.copy()
-
-    df_sett_ops = df_sett_ops.groupby(['SETTLEMENT_DATE', 'CREATED_BY']).size().reset_index().rename(
-        columns={0: 'COUNT'})
-
-    df_sett_ops['day_name'] = df_sett_ops.SETTLEMENT_DATE.dt.day_name()
-    df_sett_ops = df_sett_ops[~df_sett_ops['day_name'].isin(['Sunday', 'Saturday'])]
-
-    print(df_sett_ops.shape)
-    print(df_sett_ops.groupby('SETTLEMENT_DATE')['COUNT'].sum().sum())
-    # Creating DF for late bookings
-
-    df_late_book = df_sett_ops_main[
-        df_sett_ops_main['CREATEDDATE'].dt.date > df_sett_ops_main['SETTLEMENT_DATE'].dt.date]
-    df_late_book = df_late_book.groupby(['SETTLEMENT_DATE']).size().reset_index().rename(columns={0: 'COUNT'})
-
-    print(df_late_book.shape)
-    colors = ['#CCE5FF', '#99CCFF', '#66B2FF', '#3399FF', '#0080FF']
-    # AUDIT DATAFRAME
-    sett = '''
-        select
-            *
-        from
-            aa$ioa_settlement
-        where
-            SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and
-            SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
-
-    sett_audit = pd.read_sql(sett, connection)
-
-    #print('loading csv file')
-
-    #sett_audit = pd.read_csv(r'\\rbsres01\shareddata\rassre\AIMLData\Glacier\sett_audit.csv')
-    sett_audit['day_name'] = pd.to_datetime(sett_audit['SETTLEMENT_DATE']).dt.day_name()
-
-    # sett_audit['day_name'] = sett_audit.SETTLEMENT_DATE.dt.day_name()
-    sett_audit = sett_audit[~sett_audit['day_name'].isin(['Sunday', 'Saturday'])]
-
-    print(sett_audit.shape)
-
-    sys = ['glapp', 'ca_gpdp5', 'FPRPCLP']
-    user_list = sett_audit.UPDATED_BY.value_counts().index.to_list()
-    item_list = [e for e in user_list if e not in sys]
-
-    ##Re-writing code for Label column]
-
-    # sett_audit['Label'] = ''
-    #
-    # for id in sett_audit['ID'].unique():
-    #     id_rows = sett_audit[sett_audit['ID'] == id]
-    #     if any(row['UPDATED_BY'] in item_list for _, row in id_rows.iterrows()):
-    #         sett_audit.loc[sett_audit['ID'] == id, 'Label'] = 'NON_STP'
-    #     else:
-    #         sett_audit.loc[sett_audit['ID'] == id, 'Label'] = 'STP'
-
-    # Defining Label column for STP & NON-STP Data
-
-    sys = ['glapp', 'ca_gpdp5', 'FPRPCLP']
-    df_user = pd.DataFrame(item_list).reset_index(drop=True).rename(columns={0: 'UPDATED_BY'})
-    df_user['STP_NON_STP'] = 'NON_STP'
-    df_merge = pd.merge(sett_audit, df_user, on='UPDATED_BY', how='left')
-    df_merge['STP_NON_STP'].fillna(value='STP', inplace=True)
-    df_stage1 = df_merge.groupby(['ID', 'STP_NON_STP']).size()
-    df_stage1 = pd.DataFrame(df_stage1.reset_index())
-    df_stage2 = df_merge.groupby(['ID', 'STP_NON_STP']).size().groupby(['ID']).size().sort_values(ascending=False)
-    df_stage2 = pd.DataFrame(df_stage2).reset_index().rename(columns={0: 'count'})
-    df_stage3 = pd.merge(df_stage2, df_stage1, on='ID', how='left')
-    df_stage4 = df_stage3[(df_stage3['count'] == 1) & (df_stage3['STP_NON_STP'] == 'NON_STP')]
-    df_stage4['count'].replace(to_replace=1, value='NON_STP', inplace=True)
-    df_stage5 = pd.merge(df_stage3, df_stage4, on='ID', how='left')
-    df_stage5['STP_NON_STP_y'][df_stage5['count_x'] == 2] = 'NON_STP'
-    df_stage5['STP_NON_STP_y'].fillna(value='STP', inplace=True)
-    df_stage5.drop(['count_x', 'STP_NON_STP_x', '0_x', 'count_y', '0_y'], axis=1, inplace=True)
-    df_stage5.drop_duplicates(inplace=True)
-    sett_audit = pd.merge(df_merge, df_stage5, on='ID', how='inner')
-    sett_audit.rename(columns={'STP_NON_STP_y': 'Label'}, inplace=True)
-
-    # STP NON STP DATAFRAME
-    sett_audit_dup = sett_audit.copy()
-    sett_audit_dup_rate = pd.DataFrame()
-
-    sett_audit_dup_rate['SETTLEMENT_DATE'] = \
-        sett_audit_dup[sett_audit_dup.Label == 'STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
-            'Label'].count().index
-    sett_audit_dup_rate['STP_COUNT'] = \
-        sett_audit_dup[sett_audit_dup.Label == 'STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
-            'Label'].count().values
-    sett_audit_dup_rate['NON_STP_COUNT'] = \
-        sett_audit_dup[sett_audit_dup.Label == 'NON_STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
-            'Label'].count().values
+            # Apply the filter to the data
+            sett_audit = sett_audit[(sett_audit["SETTLEMENT_DATE"] >= start) & (sett_audit["SETTLEMENT_DATE"] <= end)].copy()
+            df12 = df12[(df12["SETTLEMENT_DATE"] >= start) & (df12["SETTLEMENT_DATE"] <= end)].copy()
+            df_sett_ops_main = df_sett_ops_main[(df_sett_ops_main["SETTLEMENT_DATE"] >= start) & (df_sett_ops_main["SETTLEMENT_DATE"] <= end)].copy()
+            df_sett_curr = df_sett_curr[(df_sett_curr["SETTLEMENT_DATE"] >= start) & (df_sett_curr["SETTLEMENT_DATE"] <= end)].copy()
+            #df10 = df10[(df10["SETTLEMENT_DATE"] >= date1) & (df10["SETTLEMENT_DATE"] <= date2)].copy()
+            #df11 = df11[(df11["SETTLEMENT_DATE"] >= date1) & (df11["SETTLEMENT_DATE"] <= date2)].copy()
+            sett_audit4 = sett_audit4[(sett_audit4["SETTLEMENT_DATE"] >= start) & (sett_audit4["SETTLEMENT_DATE"] <= end)].copy()
+        else:
+            # Handle the case when only one date is selected
+            st.write("Please select both start and end dates.")
