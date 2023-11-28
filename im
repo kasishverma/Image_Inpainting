@@ -1,4 +1,4 @@
-    with st.form("date_filter_form"):
+with st.form("date_filter_form"):
         #co2 = st.columns(1)[0]  # Use a new name for the third column
     
     # Date range input
@@ -17,40 +17,35 @@
             # Convert date to datetime for comparison
             date1 = pd.to_datetime(date1)
             date2 = pd.to_datetime(date2)
-        # if date1<=date2:
-        #     date1=date1.strftime("%Y-%m-%d")
-        #     date2=date2.strftime("%Y-%m-%d")
-
     tab1, tab2 = st.tabs(["BUSINESS", "TECHNOLOGY"])
-    sett_ops = '''select *
-        from ioa_settlement
-        where 
-        trunc(SETTLEMENT_DATE) BETWEEN :date1 AND :date2''';
 
-    df_sett_ops_main = pd.read_sql(sett_ops, connection, params={'date1':date1, 'date2':date2})
     # SETTLEMENT OVERALL BOOKINGS
     # sett_ops = '''select *
-    # from ioa_settlement
-    # where SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy')
-    # and SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
+#     from ioa_settlement
+#     where 
+#     trunc(SETTLEMENT_DATE) BETWEEN :date1 AND :date2''';
 
-    # df_sett_ops_main = pd.read_sql(sett_ops, connection)
+# df_sett_ops_main = pd.read_sql(sett_ops, connection, params={'date1':date1, 'date2':date2})
+    sett_ops = '''select *
+    from ioa_settlement
+    where SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy')
+    and SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
+
+    df_sett_ops_main = pd.read_sql(sett_ops, connection)
     print(df_sett_ops_main.shape)
 
     df_sett_ops = df_sett_ops_main.copy()
 
     df_sett_ops = df_sett_ops.groupby(['SETTLEMENT_DATE', 'CREATED_BY']).size().reset_index().rename(
         columns={0: 'COUNT'})
-    df_sett_ops['SETTLEMENT_DATE']=pd.to_datetime(df_sett_ops['SETTLEMENT_DATE'])
+
     df_sett_ops['day_name'] = df_sett_ops.SETTLEMENT_DATE.dt.day_name()
     df_sett_ops = df_sett_ops[~df_sett_ops['day_name'].isin(['Sunday', 'Saturday'])]
 
     print(df_sett_ops.shape)
     print(df_sett_ops.groupby('SETTLEMENT_DATE')['COUNT'].sum().sum())
     # Creating DF for late bookings
-    
-    df_sett_ops_main['CREATEDDATE']=pd.to_datetime(df_sett_ops_main['CREATEDDATE'])
-    df_sett_ops_main['SETTLEMENT_DATE']=pd.to_datetime(df_sett_ops_main['SETTLEMENT_DATE'])
+
     df_late_book = df_sett_ops_main[
         df_sett_ops_main['CREATEDDATE'].dt.date > df_sett_ops_main['SETTLEMENT_DATE'].dt.date]
     df_late_book = df_late_book.groupby(['SETTLEMENT_DATE']).size().reset_index().rename(columns={0: 'COUNT'})
@@ -64,19 +59,10 @@
         from
             aa$ioa_settlement
         where
-        settlement_date between :date1 AND :date2 ''';
+            SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and
+            SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
 
-    sett_audit = pd.read_sql(sett, connection, params={'date1':date1, 'date2':date2})   
-    # sett = '''
-    #     select
-    #         *
-    #     from
-    #         aa$ioa_settlement
-    #     where
-    #         SETTLEMENT_DATE >= to_date('01/07/2023','dd/mm/yyyy') and
-    #         SETTLEMENT_DATE <= to_date('31/07/2023','dd/mm/yyyy')''';
-
-    # sett_audit = pd.read_sql(sett, connection)
+    sett_audit = pd.read_sql(sett, connection)
 
     #print('loading csv file')
 
@@ -108,7 +94,7 @@
     sys = ['glapp', 'ca_gpdp5', 'FPRPCLP']
     df_user = pd.DataFrame(item_list).reset_index(drop=True).rename(columns={0: 'UPDATED_BY'})
     df_user['STP_NON_STP'] = 'NON_STP'
-    df_merge = pd.merge(sett_audit, df_user, on = 'UPDATED_BY', how='left')
+    df_merge = pd.merge(sett_audit, df_user, on='UPDATED_BY', how='left')
     df_merge['STP_NON_STP'].fillna(value='STP', inplace=True)
     df_stage1 = df_merge.groupby(['ID', 'STP_NON_STP']).size()
     df_stage1 = pd.DataFrame(df_stage1.reset_index())
@@ -117,29 +103,24 @@
     df_stage3 = pd.merge(df_stage2, df_stage1, on='ID', how='left')
     df_stage4 = df_stage3[(df_stage3['count'] == 1) & (df_stage3['STP_NON_STP'] == 'NON_STP')]
     df_stage4['count'].replace(to_replace=1, value='NON_STP', inplace=True)
-    df_stage5 
-****************************
+    df_stage5 = pd.merge(df_stage3, df_stage4, on='ID', how='left')
+    df_stage5['STP_NON_STP_y'][df_stage5['count_x'] == 2] = 'NON_STP'
+    df_stage5['STP_NON_STP_y'].fillna(value='STP', inplace=True)
+    df_stage5.drop(['count_x', 'STP_NON_STP_x', '0_x', 'count_y', '0_y'], axis=1, inplace=True)
+    df_stage5.drop_duplicates(inplace=True)
+    sett_audit = pd.merge(df_merge, df_stage5, on='ID', how='inner')
+    sett_audit.rename(columns={'STP_NON_STP_y': 'Label'}, inplace=True)
 
+    # STP NON STP DATAFRAME
+    sett_audit_dup = sett_audit.copy()
+    sett_audit_dup_rate = pd.DataFrame()
 
-
-
-KeyError: 'UPDATED_BY'
-Traceback:
-File "C:\dev\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 541, in _run_script
-    exec(code, module.__dict__)
-File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\1.py", line 1166, in <module>
-    glacier_dashboard()
-File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\1.py", line 191, in glacier_dashboard
-    df_merge = pd.merge(sett_audit, df_user, on='UPDATED_BY', how='left')
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 169, in merge
-    op = _MergeOperation(
-         ^^^^^^^^^^^^^^^^
-File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 791, in __init__
-    ) = self._get_merge_keys()
-        ^^^^^^^^^^^^^^^^^^^^^^
-File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 1269, in _get_merge_keys
-    right_keys.append(right._get_label_or_level_values(rk))
-                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-File "C:\dev\Lib\site-packages\pandas\core\generic.py", line 1844, in _get_label_or_level_values
-    raise KeyError(key)
+    sett_audit_dup_rate['SETTLEMENT_DATE'] = \
+        sett_audit_dup[sett_audit_dup.Label == 'STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
+            'Label'].count().index
+    sett_audit_dup_rate['STP_COUNT'] = \
+        sett_audit_dup[sett_audit_dup.Label == 'STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
+            'Label'].count().values
+    sett_audit_dup_rate['NON_STP_COUNT'] = \
+        sett_audit_dup[sett_audit_dup.Label == 'NON_STP'].drop_duplicates(subset=['ID']).groupby(['SETTLEMENT_DATE'])[
+            'Label'].count().values
