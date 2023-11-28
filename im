@@ -118,3 +118,28 @@
     df_stage4 = df_stage3[(df_stage3['count'] == 1) & (df_stage3['STP_NON_STP'] == 'NON_STP')]
     df_stage4['count'].replace(to_replace=1, value='NON_STP', inplace=True)
     df_stage5 
+****************************
+
+
+
+
+KeyError: 'UPDATED_BY'
+Traceback:
+File "C:\dev\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 541, in _run_script
+    exec(code, module.__dict__)
+File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\1.py", line 1166, in <module>
+    glacier_dashboard()
+File "\\gbmlvfilfs01n02.rbsres01.net\home8$\VermaKs\Profile\Desktop\style\1.py", line 191, in glacier_dashboard
+    df_merge = pd.merge(sett_audit, df_user, on='UPDATED_BY', how='left')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 169, in merge
+    op = _MergeOperation(
+         ^^^^^^^^^^^^^^^^
+File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 791, in __init__
+    ) = self._get_merge_keys()
+        ^^^^^^^^^^^^^^^^^^^^^^
+File "C:\dev\Lib\site-packages\pandas\core\reshape\merge.py", line 1269, in _get_merge_keys
+    right_keys.append(right._get_label_or_level_values(rk))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+File "C:\dev\Lib\site-packages\pandas\core\generic.py", line 1844, in _get_label_or_level_values
+    raise KeyError(key)
