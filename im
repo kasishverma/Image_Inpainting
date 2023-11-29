@@ -1,17 +1,29 @@
-date1, date2 = pd.to_datetime('2023-07-01'), pd.to_datetime('2023-07-05')
+def is_valid_date_range(date1, date2):
+    return (date2 - date1).days <= 30
 
-    with st.form("date_filter_form"):
-        date1 = st.date_input("Pick the start date", date1)
+with st.form("date_filter_form"):
+    # Date range input
+    date_range = st.date_input("Pick a date range", (date1.date() if date1 else None, date2.date() if date2 else None))
 
-    # Calculate max date allowed for date2 (30 days from date1)
-        max_date_allowed_date2 = date1 + timedelta(days=30)
+    # "Apply Filter" button
+    submitted_filter = st.form_submit_button("Apply Filter")
 
-        # Date input for date2, limited to be within the next 30 days from date1
-        date2 = st.date_input("Pick the end date", date2, min_value=date1, max_value=max_date_allowed_date2)
+# Initialize date variables with default values or any suitable default date
+date1, date2 = pd.to_datetime('2023-01-01'), pd.to_datetime('2023-12-31')
 
-        # "Apply Filter" button
-        submitted_filter = st.form_submit_button("Apply Filter")
-    if submitted_filter:
-    # Convert date to datetime for comparison
+# Check if the date filter form was submitted
+if submitted_filter:
+    # Check the length of the date_range
+    if isinstance(date_range, tuple) and len(date_range) == 2:
+        # Extract start and end dates from the selected date range
+        date1, date2 = date_range
+
+        # Convert date to datetime for comparison
         date1 = pd.to_datetime(date1)
         date2 = pd.to_datetime(date2)
+
+        # Check if the date range is valid (not more than 30 days)
+        if not is_valid_date_range(date1, date2):
+            st.error("Please select a date range of maximum 30 days.")
+            # Set date variables back to default or handle as needed
+            date1, date2 = pd.to_datetime('2023-01-01'), pd.to_datetime('2023-12-31')
