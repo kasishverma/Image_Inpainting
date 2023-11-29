@@ -1,23 +1,17 @@
-  sett4 = '''
-                select 
-                    * 
-                from 
-                    aa$ioa_settlement 
-                WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')
-                                    AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')''';
+date1, date2 = pd.to_datetime('2023-07-01'), pd.to_datetime('2023-07-05')
 
+    with st.form("date_filter_form"):
+        date1 = st.date_input("Pick the start date", date1)
 
-    sett_audit4 = pd.read_sql(sett4, connection)
+    # Calculate max date allowed for date2 (30 days from date1)
+        max_date_allowed_date2 = date1 + timedelta(days=30)
 
-    sett = '''
-        select
-            *
-        from
-            aa$ioa_settlement
-        WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')
-                                    AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')''';
+        # Date input for date2, limited to be within the next 30 days from date1
+        date2 = st.date_input("Pick the end date", date2, min_value=date1, max_value=max_date_allowed_date2)
 
-    sett_audit = pd.read_sql(sett, connection)
-
-****
-DatabaseError: Execution failed on sql ' select * from aa$ioa_settlement WHERE SETTLEMENT_DATE BETWEEN TO_DATE('{date1.strftime("%d/%m/%Y")}', 'dd/mm/yyyy') AND TO_DATE('{date2.strftime("%d/%m/%Y")}', 'dd/mm/yyyy')': ORA-01858: a non-numeric character was found where a numeric was expected
+        # "Apply Filter" button
+        submitted_filter = st.form_submit_button("Apply Filter")
+    if submitted_filter:
+    # Convert date to datetime for comparison
+        date1 = pd.to_datetime(date1)
+        date2 = pd.to_datetime(date2)
