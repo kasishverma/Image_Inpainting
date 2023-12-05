@@ -1,6 +1,0 @@
-with c3:
-            # st.markdown("\n")
-            
-            submitted_filter = st.form_submit_button("Apply Filter")
-            #st.markdown("<h6 style='text-align: center'>Please select a date range within 30 days</h6>", unsafe_allow_html=True)
-            st.markdown("<div style='text-align:center; font-size:14px;'>Please select a date range within 30 days</div>", unsafe_allow_html=True)
